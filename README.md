@@ -1,6 +1,8 @@
 # profile_project
 
-A new Flutter project.
+//widgets
+1-CupertinoSlidingSegmentedControl
+2-InkWell
 
 ## Getting Started
 
