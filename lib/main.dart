@@ -3,11 +3,12 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 void main() {
   runApp(const MyApp());
 }
-
 
 class MyApp extends StatefulWidget {
   const MyApp({super.key});
@@ -17,54 +18,82 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
+  Locale _locale = Locale('en');
   ThemeMode themeMode = ThemeMode.dark;
   @override
   Widget build(BuildContext context) {
-   
     return MaterialApp(
+      localizationsDelegates: [
+        //new
+        AppLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: AppLocalizations.supportedLocales,
+      locale: _locale,
+      //      [
+      //   Locale('en'), // English
+      //   Locale('fa'), // persian
+      // ],
       debugShowCheckedModeBanner: false,
       title: 'Profile App 7Learn',
       theme: themeMode == ThemeMode.dark
-          ? MyAppThemeConfig.dark().getTheme()
-          : MyAppThemeConfig.light().getTheme(),
+          ? MyAppThemeConfig.dark().getTheme(_locale.languageCode)
+          : MyAppThemeConfig.light().getTheme(_locale.languageCode),
       home: HomePage(
-        toggleThemeMode:() {
-       print("toggleThemeMode");
-         setState(() {
-          if (themeMode == ThemeMode.dark) {
-           themeMode =  ThemeMode.light;
-          } else {
-            themeMode = ThemeMode.dark;
-          }
-        });
-      },),
+        languageChange: (userSelectedLanguage) {
+          setState(() {
+             _locale = userSelectedLanguage == Language.en ? Locale('en') : Locale('fa');
+          });
+        },
+        toggleThemeMode: () {
+          setState(() {
+            if (themeMode == ThemeMode.dark) {
+              themeMode = ThemeMode.light;
+            } else {
+              themeMode = ThemeMode.dark;
+            }
+          });
+        },
+      ),
     );
   }
 }
 
 class HomePage extends StatefulWidget {
-   final Function toggleThemeMode;
-
-   HomePage({super.key, required this.toggleThemeMode});
+  final Function toggleThemeMode;
+  final Function(Language userSelectedLanguage) languageChange;
+  HomePage({super.key, required this.toggleThemeMode,required this.languageChange});
 
   @override
   State<HomePage> createState() => _HomePageState();
 }
 
 class _HomePageState extends State<HomePage> {
+  //attributes
   SkillType _skill = SkillType.photoShop;
+  Language _language = Language.en;
 
+  //methods
   void updateSelectedSkill(SkillType skillType) {
     setState(() {
       this._skill = skillType;
     });
   }
 
+  void updateSelectedLanguage(Language language) {
+    setState(() {
+      _language = language;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    AppLocalizations localization = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Profile App"),
+        title: Text(localization.titleApp),
         actions: [
           Icon(CupertinoIcons.chat_bubble),
           InkWell(
@@ -99,10 +128,10 @@ class _HomePageState extends State<HomePage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
-                      Text("Amirreza Azarmjo",
+                      Text(localization.name,
                           style: Theme.of(context).textTheme.subtitle1),
                       SizedBox(height: 5),
-                      Text("Mobile Developer and Computer technician",
+                      Text(localization.job,
                           style: Theme.of(context).textTheme.bodyText1),
                       SizedBox(height: 3),
                       Row(
@@ -113,13 +142,8 @@ class _HomePageState extends State<HomePage> {
                             size: 14,
                           ),
                           SizedBox(width: 3),
-                          Text(
-                            "Iran Ramsar",
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodyText1
-                               
-                          ),
+                          Text(localization.location,
+                              style: Theme.of(context).textTheme.bodyText1),
                         ],
                       ),
                     ],
@@ -134,11 +158,40 @@ class _HomePageState extends State<HomePage> {
               SizedBox(height: 10),
               //body Text info about me
               Text(
-                "Lorem Ipsum is simply dummy text of the printing and typesetting industry.  ",
+                localization.summary,
                 style: Theme.of(context).textTheme.bodyText2,
               ),
               SizedBox(height: 10),
               //Divider1
+              Divider(height: 10),
+              //language Selected
+              Padding(
+                padding: const EdgeInsets.all(10),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      localization.languageSelected,
+                      style: Theme.of(context).textTheme.bodyText2,
+                    ),
+                    CupertinoSlidingSegmentedControl<Language>(
+                      groupValue: _language,
+                      children: {
+                        Language.en: Text(localization.enLanguage),
+                        Language.fa: Text(localization.faLanguage),
+                      },
+                      onValueChanged: (value) {
+                        
+                        if (value != null) {
+                          updateSelectedLanguage(value);
+                          widget.languageChange(value);
+                        }
+                      },
+                    )
+                  ],
+                ),
+              ),
+
               Divider(height: 10),
               SizedBox(height: 10),
               //Skills
@@ -148,7 +201,7 @@ class _HomePageState extends State<HomePage> {
                 child: Row(
                   children: [
                     Text(
-                      'Skills',
+                      localization.skills,
                       style: Theme.of(context)
                           .textTheme
                           .bodyText2
@@ -235,7 +288,7 @@ class _HomePageState extends State<HomePage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Personal Information',
+                      localization.personalInformation,
                       style: Theme.of(context)
                           .textTheme
                           .bodyText2
@@ -244,14 +297,14 @@ class _HomePageState extends State<HomePage> {
                     SizedBox(height: 10),
                     TextField(
                       decoration: InputDecoration(
-                        labelText: 'Email',
+                        labelText: localization.email,
                         prefixIcon: Icon(CupertinoIcons.at),
                       ),
                     ),
                     SizedBox(height: 10),
                     TextField(
                       decoration: InputDecoration(
-                        labelText: 'Password',
+                        labelText: localization.password,
                         prefixIcon: Icon(CupertinoIcons.lock),
                       ),
                     )
@@ -262,21 +315,13 @@ class _HomePageState extends State<HomePage> {
               Container(
                   padding: EdgeInsets.symmetric(horizontal: 10),
                   width: double.infinity,
-                  child: ElevatedButton(onPressed: () {}, child: Text('Save')))
+                  child: ElevatedButton(onPressed: () {}, child: Text(localization.save)))
             ],
           ),
         ),
       ),
     );
   }
-}
-
-enum SkillType {
-  photoShop,
-  xd,
-  illustrator,
-  afterEffect,
-  lightRoom,
 }
 
 class Skill extends StatelessWidget {
@@ -343,6 +388,7 @@ class Skill extends StatelessWidget {
 }
 
 class MyAppThemeConfig {
+  static const String fontFamliy = "BYekan";
   final Color primaryTextColor;
   final Color secondaryTextColor;
   final Color surfaceColor;
@@ -361,53 +407,79 @@ class MyAppThemeConfig {
 
   MyAppThemeConfig.light()
       : primaryTextColor = Colors.black,
-        secondaryTextColor =Colors.black,
+        secondaryTextColor = Colors.black,
         surfaceColor = Color(0x0d000000),
         backgroundColor = Colors.white,
         appBarColor = Color.fromARGB(255, 235, 235, 235),
         brightness = Brightness.light;
 
-  ThemeData getTheme() {
+  ThemeData getTheme(String languageCode) {
     return ThemeData(
-        inputDecorationTheme: InputDecorationTheme(
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
-            borderSide: BorderSide.none,
-          ),
-          filled: true,
-          fillColor: surfaceColor,
+      inputDecorationTheme: InputDecorationTheme(
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: BorderSide.none,
         ),
-        primarySwatch: Colors.pink,
-        elevatedButtonTheme: ElevatedButtonThemeData(
-          style: ButtonStyle(
-            backgroundColor: MaterialStateProperty.all(primaryColor),
-          ),
+        filled: true,
+        fillColor: surfaceColor,
+      ),
+      primarySwatch: Colors.pink,
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ButtonStyle(
+          backgroundColor: MaterialStateProperty.all(primaryColor),
         ),
-        brightness: brightness,
-        
-        dividerTheme: DividerThemeData(
-          color: surfaceColor,
-          indent: 20,
-          thickness: 1,
-          endIndent: 20,
-        ),
-        appBarTheme: AppBarTheme(backgroundColor: appBarColor),
-        scaffoldBackgroundColor: backgroundColor,
-        textTheme: GoogleFonts.latoTextTheme(
-          TextTheme(
-            bodyText2: TextStyle(fontSize: 14, color: primaryTextColor),
-            bodyText1: TextStyle(
-              fontSize: 12,
-              color: secondaryTextColor,
-            ),
-            headline6:
-                TextStyle(fontWeight: FontWeight.w900, color: primaryTextColor),
-            subtitle1: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: primaryTextColor),
-          ),
-        ));
+      ),
+      brightness: brightness,
+      dividerTheme: DividerThemeData(
+        color: surfaceColor,
+        indent: 20,
+        thickness: 1,
+        endIndent: 20,
+      ),
+      appBarTheme: AppBarTheme(backgroundColor: appBarColor),
+      scaffoldBackgroundColor: backgroundColor,
+      textTheme: languageCode == 'en' ? enPrimaryTextTheme : faPrimaryTextTheme,
+    );
   }
+
+  TextTheme get enPrimaryTextTheme => GoogleFonts.latoTextTheme(
+        TextTheme(
+          bodyText2: TextStyle(fontSize: 14, color: primaryTextColor),
+          bodyText1: TextStyle(
+            fontSize: 12,
+            color: secondaryTextColor,
+          ),
+          headline6:
+              TextStyle(fontWeight: FontWeight.w900, color: primaryTextColor),
+          subtitle1: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: primaryTextColor),
+        ),
+      );
+  TextTheme get faPrimaryTextTheme => TextTheme(
+        bodyText2: TextStyle(
+            fontSize: 14, color: primaryTextColor, fontFamily: fontFamliy),
+        bodyText1: TextStyle(
+            fontSize: 12, color: secondaryTextColor, fontFamily: fontFamliy),
+        headline6: TextStyle(
+            fontWeight: FontWeight.w900,
+            color: primaryTextColor,
+            fontFamily: fontFamliy),
+        subtitle1: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+            color: primaryTextColor,
+            fontFamily: fontFamliy),
+      );
 }
 
+enum Language { en, fa }
+
+enum SkillType {
+  photoShop,
+  xd,
+  illustrator,
+  afterEffect,
+  lightRoom,
+}

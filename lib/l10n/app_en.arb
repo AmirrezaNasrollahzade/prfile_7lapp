@@ -1,0 +1,15 @@
+{
+    "titleApp": "Profile App",
+    "name": "Amirreza Azarmjo",
+    "job" : "Mobile Developer and Computer technician",
+    "location" : "Iran Ramsar",
+    "summary" : "i am a mobile developer and i can fix the computer or laptop.you can buy ssd from this web site https://pcaspian.ir" ,
+    "languageSelected" : "language",
+    "skills" : "Skill",
+    "personalInformation" : "Personal Information",
+    "email" : " Email",
+    "password": "Password",
+    "enLanguage" : "english",
+    "faLanguage" : "persian",
+    "save" : "save"
+  }
